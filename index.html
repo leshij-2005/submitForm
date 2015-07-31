@@ -1,0 +1,31 @@
+<!doctype html>
+
+<html>
+<head>
+  <title>Submit Form</title>
+
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+</head>
+
+<body>
+  <div class="wrapper">
+    <form id="form" action="" method="POST">
+      <div class="form-container">
+        <p>Phone: <input type="text" data-validate="required, phone" name="phone"/></p>
+        <p>E-mail: <input type="text" data-validate="required, email" name="email"/></p>
+        <p>Comment: <textarea data-validate="required" name="comment"></textarea></p>
+      </div>
+    </form>
+  </div>
+
+  <script type="text/javascript" src="jquery-1.10.1.min.js"></script>
+  <script type="text/javascript" src="jquery.submitForm.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $('#form').submitForm({
+        source: 'save.html'
+      });
+    });
+  </script>
+</body>
+</html>
