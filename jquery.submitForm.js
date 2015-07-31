@@ -3,13 +3,18 @@
 */
 (function($) {
 
-  var mapFields = ['INPUT', 'SELECT', 'TEXTAREA'];
+  var FIELDS = ['INPUT', 'SELECT', 'TEXTAREA'];
+  var STATE = {
+    processing: 'processing',
+    error: 'error',
+    success: 'success'
+  };
+
   var fields = [];
   
   var validators = {
     required: function(item){
       var value = item.type == 'radio' || item.type == 'checkbox' ? item.checked : $(item).val().trim();
-      $(item).removeClass('invalid');
       
       if (!value)
         $(item).addClass('invalid');
@@ -18,7 +23,6 @@
     phone: function(item){
       var value = $(item).val();
       var valid = true;
-      $(item).removeClass('invalid');
 
       if (!(/^[0-9()\-+\s]+$/).test(value) || !(value.length >= 6))
       {
@@ -30,7 +34,6 @@
     email: function(item){
       var value = $(item).val();
       var valid = true;
-      $(item).removeClass('invalid');
 
       if (!(/^([a-z0-9_\-]+\.)*[a-z0-9_\-]+@([a-z0-9][a-z0-9\-]*[a-z0-9]\.)+[a-z]{2,4}$/i).test(value))
       {
@@ -43,7 +46,7 @@
 
   function searchField(node){
     $(node.children).each(function(index, item){
-      if(jQuery.inArray(item.nodeName, mapFields) != -1 && !item.disabled)
+      if(jQuery.inArray(item.nodeName, FIELDS) != -1 && !item.disabled)
         fields.push(item);
       if(item.childElementCount)
         searchField(item);
@@ -52,27 +55,32 @@
   }
 
   function validate(){
+    var that = this;
     fields = [];
     this.fields = searchField(this);
     
-    $(this).removeClass('invalid-required').removeClass('invalid-phone').removeClass('invalid-email');
+    $.each(validators, function(key, item){
+      $(that).removeClass('invalid-' + key);
+    });
 
     var valid = false;
-    for(var i = 0; i < this.fields.length; i++){
-      var item = this.fields[i];
+    for (var i = 0; item = this.fields[i]; i++)
+    {
       var validAttr = $(item).attr('data-validate');
       
       if(validAttr)
       {
         var valids = validAttr.split(', ');
-        for(var j = 0; j < valids.length; j++)
+        for (var j = 0; validator = valids[j]; j++)
         {
-          var f = validators[valids[j]];
+          var f = validators[validator];
+
+          $(item).removeClass('invalid');
           valid = f(item);
           if(!valid) 
           {
             $(item).focus()
-            $(this).addClass('invalid-' + valids[j]);
+            $(this).addClass('invalid-' + validator);
             
             item.addEventListener('keyup', function(){
               $(this).removeClass('invalid');
@@ -81,24 +89,31 @@
             item.addEventListener('change', function(){
               $(this).removeClass('invalid');
             });
+
             break;
           }
         }
+
         if(!valid)
         {
           if (this.options.invalidHandler != undefined)
             this.options.invalidHandler(item);
+
           break;
         }
       }
       else
         valid = true;
     }
+
     return valid;
   };
 
   function submit(){
-    $(this).removeClass('processing').removeClass('success').removeClass('error');
+
+    $.each(STATE, function(idx, state){
+      $(this).removeClass(state);
+    });
      
     if (validate.call(this))
     {
@@ -147,20 +162,19 @@
             class: 'submit-form-response'
           }),
           onBeforeSend: function(obj){
-            $this.removeClass('error');
-            $this.addClass('processing');
+            $this.addClass(STATE.processing);
           },
           onSuccess: function(response, status, obj){
-            $this.removeClass('processing');
-            $this.addClass('success');
+            $this.removeClass(STATE.processing);
+            $this.addClass(STATE.success);
             
             var s = $this.context.options.success(response);
             if (s || s == undefined)
               $this.context.options.responseElement.html(response);
           },
           onError: function(obj, status, error){
-            $this.removeClass('processing');
-            $this.addClass('error');
+            $this.removeClass(STATE.processing);
+            $this.addClass(STATE.error);
             
             var s = $this.context.options.error(status, error);
             if (s || s == undefined)
