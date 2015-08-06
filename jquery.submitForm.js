@@ -176,8 +176,8 @@
             $this.removeClass(STATE.processing);
             $this.addClass(STATE.error);
             
-            var s = $this.context.options.error(status, error);
-            if (s || s == undefined)
+            var s = $this.context.options.error ? $this.context.options.error(status, error) : undefined;
+            if (s)
               $this.context.options.responseElement.html(error);
           },
           success: function(response){},
