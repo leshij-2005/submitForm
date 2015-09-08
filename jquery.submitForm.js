@@ -122,7 +122,17 @@
         var name = item.name || item.id;
         
         if ((item.type == 'radio' || item.type == 'checkbox') && item.checked)
-          data[name] = $(item).val();
+        {
+          if (!data[name])
+            data[name] = $(item).val();
+          else
+          {
+            if (typeof data[name] != 'object')
+              data[name] = [data[name]];
+              
+            data[name].push($(item).val());
+          }
+        }
         
         if (item.type == 'text' || item.type =='hidden' || item.type =='password' || item.nodeName == 'SELECT' || item.nodeName == 'TEXTAREA')
           data[name] = $(item).val(); 
