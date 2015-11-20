@@ -35,7 +35,7 @@
       var value = $(item).val();
       var valid = true;
 
-      if (!(/^([a-z0-9_\-]+\.)*[a-z0-9_\-]+@([a-z0-9][a-z0-9\-]*[a-z0-9]\.)+[a-z]{2,4}$/i).test(value))
+      if (value && !(/^([a-z0-9_\-]+\.)*[a-z0-9_\-]+@([a-z0-9][a-z0-9\-]*[a-z0-9]\.)+[a-z]{2,4}$/i).test(value))
       {
         $(item).addClass('invalid');
         valid = false;
@@ -120,22 +120,22 @@
       var data = {};
       $(this.fields).each(function(index, item){
         var name = item.name || item.id;
+        var value;
         
         if ((item.type == 'radio' || item.type == 'checkbox') && item.checked)
-        {
-          if (!data[name])
-            data[name] = $(item).val();
-          else
-          {
-            if (typeof data[name] != 'object')
-              data[name] = [data[name]];
-              
-            data[name].push($(item).val());
-          }
-        }
+            value = $(item).val();
         
         if (item.type == 'text' || item.type =='hidden' || item.type =='password' || item.nodeName == 'SELECT' || item.nodeName == 'TEXTAREA')
-          data[name] = $(item).val(); 
+          value = $(item).val();
+          
+        if (data[name])
+        {
+            if (typeof data[name] != 'object')
+                data[name] = [data[name]]
+            data[name].push(value);
+        }
+        else
+            data[name] = value;
       });
       
       data = this.options.prepare(data);
