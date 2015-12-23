@@ -64,8 +64,9 @@
     });
 
     var valid = false;
-    for (var i = 0; item = this.fields[i]; i++)
+    for (var i = 0; i < fields.length ; i++)
     {
+      var item = this.fields[i];
       var validAttr = $(item).attr('data-validate');
       
       if(validAttr)
@@ -166,7 +167,7 @@
 
         var defaults = {
           ajaxObject: null,
-          source: '/',
+          source: $this.attr('action') || '/',
           method: 'POST',
           responseElement: $('<div>',{
             class: 'submit-form-response'
