@@ -1,5 +1,5 @@
 /*
- ! Submit Form v1.5 | (c) 2013 - 2015 Ershov Alexey
+ ! Submit Form v1.6 | (c) 2013 - 2016 Ershov Alexey
 */
 (function($) {
 
@@ -131,12 +131,15 @@
           
         if (data[name])
         {
+          if (value)
+          {
             if (typeof data[name] != 'object')
-                data[name] = [data[name]]
+              data[name] = [data[name]]
             data[name].push(value);
+          }
         }
         else
-            data[name] = value;
+          data[name] = value;
       });
       
       data = this.options.prepare(data);
