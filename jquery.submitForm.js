@@ -1,5 +1,5 @@
 /*
- ! Submit Form v1.6 | (c) 2013 - 2016 Ershov Alexey
+ ! Submit Form v1.7 | (c) 2013 - 2016 Ershov Alexey
 */
 (function($) {
 
@@ -9,6 +9,7 @@
     error: 'error',
     success: 'success'
   };
+  var SPECIAL_KEYS = [37, 39, 8, 46, 13, 10, 36, 35, 9];
 
   var fields = [];
   
@@ -41,6 +42,22 @@
         valid = false;
       }
       return valid;
+    },
+    date: function(item){
+      var value = $(item).val();
+      var valid = true;
+
+      if (value)
+      {
+        var dateArr = value.split('.');
+        var date = new Date(dateArr[2], dateArr[1] - 1, dateArr[0], 0, 0, 0, 0);
+        
+        valid = !isNaN(date.getTime()) && (parseInt(dateArr[1]) == date.getMonth() + 1);
+        if (!valid)
+          $(item).addClass('invalid');
+      }
+
+      return valid;
     }
   };
 
@@ -52,6 +69,43 @@
         searchField(item);
     });
     return fields;
+  }
+
+  function validateField(field){
+    var validAttr = $(field).attr('data-validate');
+    $(field).removeClass('invalid');
+    $(field).removeClass('valid');
+      
+    if(validAttr)
+    {
+      var valids = validAttr.split(', ');
+      for (var j = 0; validator = valids[j]; j++)
+      {
+        var f = validators[validator];
+
+        $(field).removeClass('invalid');
+        valid = f(field);
+        if(!valid) 
+        {
+          $(field).focus();
+          $(this).addClass('invalid-' + validator);
+          
+          return false;
+        }
+      }
+
+      if(!valid)
+      {
+        if (this.options.invalidHandler != undefined)
+          this.options.invalidHandler(item);
+
+        return false;
+      }
+    }
+
+    $(field).addClass('valid');
+    
+    return true;
   }
 
   function validate(){
@@ -67,44 +121,10 @@
     for (var i = 0; i < fields.length ; i++)
     {
       var item = this.fields[i];
-      var validAttr = $(item).attr('data-validate');
-      
-      if(validAttr)
-      {
-        var valids = validAttr.split(', ');
-        for (var j = 0; validator = valids[j]; j++)
-        {
-          var f = validators[validator];
+      valid = validateField.call(that, item);
 
-          $(item).removeClass('invalid');
-          valid = f(item);
-          if(!valid) 
-          {
-            $(item).focus()
-            $(this).addClass('invalid-' + validator);
-            
-            item.addEventListener('keyup', function(){
-              $(this).removeClass('invalid');
-            });
-
-            item.addEventListener('change', function(){
-              $(this).removeClass('invalid');
-            });
-
-            break;
-          }
-        }
-
-        if(!valid)
-        {
-          if (this.options.invalidHandler != undefined)
-            this.options.invalidHandler(item);
-
-          break;
-        }
-      }
-      else
-        valid = true;
+      if (!valid)
+        break;
     }
 
     return valid;
@@ -126,38 +146,49 @@
         if ((item.type == 'radio' || item.type == 'checkbox') && item.checked)
             value = $(item).val();
         
-        if (item.type == 'text' || item.type =='hidden' || item.type =='password' || item.nodeName == 'SELECT' || item.nodeName == 'TEXTAREA')
+        if (/text|hidden|password|tel/.test(item.type) || item.nodeName == 'SELECT' || item.nodeName == 'TEXTAREA')
           value = $(item).val();
           
         if (data[name])
         {
-          if (value)
-          {
             if (typeof data[name] != 'object')
-              data[name] = [data[name]]
+                data[name] = [data[name]]
             data[name].push(value);
-          }
         }
         else
-          data[name] = value;
+            data[name] = value;
       });
       
       data = this.options.prepare(data);
 
-      if(this.options.ajaxObject)
-        this.options.ajaxObject['data'] = data;
+      if (this.options.ajax)
+      {
+        if (this.options.ajaxObject)
+          this.options.ajaxObject['data'] = data;
+        else
+          this.options.ajaxObject = {
+            url:  this.options.source,
+            type: this.options.method,
+            data:  data,
+            beforeSend: this.options.onBeforeSend,
+            success: this.options.onSuccess,
+            error: this.options.onError
+          }
+
+        $.ajax(this.options.ajaxObject);
+
+        return false;
+      }
       else
-        this.options.ajaxObject = {
-          url:  this.options.source,
-          type: this.options.method,
-          data:  data,
-          beforeSend: this.options.onBeforeSend,
-          success: this.options.onSuccess,
-          error: this.options.onError
-        }
-      $.ajax(this.options.ajaxObject);
-    }   
-    return false;
+      {
+        this.options.onBeforeSend();
+        
+        return true;
+      }
+    }
+    else
+      return false;
+    
   };
 
   var methods = {
@@ -172,9 +203,8 @@
           ajaxObject: null,
           source: $this.attr('action') || '/',
           method: 'POST',
-          responseElement: $('<div>',{
-            class: 'submit-form-response'
-          }),
+          ajax: true,
+          responseElement: $(this),
           onBeforeSend: function(obj){
             $this.addClass(STATE.processing);
           },
@@ -200,13 +230,38 @@
 
         var options = $.extend({}, defaults, params);
         this.options = options;
-        
-        
-        if (this.options.responseElement == defaults.responseElement)
-          $(this).append(this.options.responseElement);
 
         $(this).submit(submit);
+
+        this.fields = searchField(this);
+        var that = this;
+
+        $.each(this.fields, function(idx, field){
+          $(field).keyup(function(event){
+            $(field).removeClass('valid');
+            
+            if (SPECIAL_KEYS.indexOf(event.keyCode) == -1 && that.options.validateOnEnter)
+              validateField.call(that, this);
+          });
+
+          $(field).change(function(event){
+            if (that.options.validateOnEnter)
+              validateField.call(that, this);
+          });
+        })
       });     
+    },
+    loadData: function(data){
+      this.fields = searchField(this);
+
+      $.each(this.fields, function(idx, field){
+        if (data[field.name]) {
+          $(field).val(data[field.name]);
+        }
+      });
+    },
+    validate: function(){
+      validate.call(this)
     }
   };
 
