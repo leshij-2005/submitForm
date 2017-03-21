@@ -1,5 +1,5 @@
 /*
- ! Submit Form v1.7 | (c) 2013 - 2016 Ershov Alexey
+ ! Submit Form v1.8 | (c) 2013 - 2017 Ershov Alexey
 */
 (function($) {
 
@@ -149,14 +149,16 @@
         if (/text|hidden|password|tel/.test(item.type) || item.nodeName == 'SELECT' || item.nodeName == 'TEXTAREA')
           value = $(item).val();
           
-        if (data[name])
-        {
+        if(value !== undefined) {
+          if (data[name])
+          {
             if (typeof data[name] != 'object')
-                data[name] = [data[name]]
+              data[name] = [data[name]]
             data[name].push(value);
-        }
-        else
+          }
+          else
             data[name] = value;
+        }
       });
       
       data = this.options.prepare(data);
