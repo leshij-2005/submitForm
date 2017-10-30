@@ -1,0 +1,17 @@
+{
+  "name": "submit_form",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leshij-2005/submitForm.git"
+  },
+  "private": false,
+  "devDependencies": {
+    "del": "3.0.0",
+    "gulp": "3.9.1",
+    "gulp-connect": "5.0.0",
+    "gulp-rigger": "0.5.8",
+    "gulp-util": "3.0.8",
+    "gulp-watch": "4.3.11",
+    "gulp-minify": "1.0.0"
+  }
+}

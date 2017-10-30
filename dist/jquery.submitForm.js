@@ -184,8 +184,10 @@
               error: this.options.onError
             };
           }
-  
-          $.ajax(this.options.ajaxObject);
+
+          if (this.options.beforeSend(data)) {
+            $.ajax(this.options.ajaxObject);
+          }
   
           return false;
         } else {
@@ -233,8 +235,9 @@
                 item.options.responseElement.html(error);
               }
             },
-            success: function(response){},
-            prepare: function(data){ return data; }
+            success: function(response) {},
+            prepare: function(data) { return data; },
+            beforeSend: function(data) { return true; }
           };
   
           var options = $.extend({}, defaults, params);
