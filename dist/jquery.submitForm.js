@@ -239,6 +239,10 @@
             prepare: function(data) { return data; },
             beforeSend: function(data) { return true; }
           };
+
+          if (params.state) {
+            STATE = $.extend(STATE, params.state);
+          }
   
           var options = $.extend({}, defaults, params);
           item.options = options;
