@@ -240,7 +240,7 @@
             beforeSend: function(data) { return true; }
           };
 
-          if (params.state) {
+          if (params && params.state) {
             STATE = $.extend(STATE, params.state);
           }
   
