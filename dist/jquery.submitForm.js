@@ -1,5 +1,5 @@
 /*
- ! Submit Form v2.0 | (c) 2013 - 2017 Ershov Alexey
+ ! Submit Form v2.1 | (c) 2013 - 2018 Ershov Alexey
 */
 
 (function($) {
@@ -63,7 +63,19 @@
         }
   
         return valid;
-      }
+      },      
+      minlength: function(item){
+        var minlength = $(item).attr('minlength');
+        var value = $(item).val();
+        var valid = true;
+
+        if (value.length < minlength) {
+          valid = false;
+          $(item).addClass('invalid');
+        }
+
+        return valid;
+      },
     };
   
     function searchField(node) {
