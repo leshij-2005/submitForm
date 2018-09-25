@@ -76,6 +76,17 @@
 
       return valid;
     },
+    number: function(item) {
+      var value = $(item).val();
+      var valid = true;
+
+      if (value && !(/^\d+$/).test(value)) {
+        $(item).addClass('invalid');
+        valid = false;
+      }
+
+      return valid;
+    },
   };
 
   function searchField(node) {
