@@ -40,7 +40,7 @@
       var value = $(item).val();
       var valid = true;
 
-      if (value && !(/^([a-z0-9_\-]+\.)*[a-z0-9_\-]+@([a-z0-9][a-z0-9\-]*[a-z0-9]\.)+[a-z]{2,4}$/i).test(value)) {
+      if (value && !(/^[а-яА-Яa-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[а-яА-Яa-zA-Z0-9-]+(?:\.[а-яА-Яa-zA-Z0-9-]+)*$/i).test(value)) {
         $(item).addClass('invalid');
         valid = false;
       }
