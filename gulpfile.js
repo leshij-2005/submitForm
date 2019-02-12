@@ -23,7 +23,7 @@ var path = {
 //
 
 gulp.task('clean', function () {
-  del(path.out);
+  return del(path.out);
 });
 
 //
@@ -31,7 +31,7 @@ gulp.task('clean', function () {
 //
 
 gulp.task('build', function () {
-  gulp.src(path.src)
+  return gulp.src(path.src)
     .pipe(minify({
       ext: {
         src: '.js',
@@ -52,7 +52,7 @@ gulp.task('build', function () {
 //
 
 gulp.task('webserver', function(){
-  connect.server({
+  return connect.server({
     root: './',
     port: 8005,
     livereload: true
@@ -64,11 +64,11 @@ gulp.task('webserver', function(){
 //
 
 gulp.task('watch', function() {
-  gulp.watch(path.src, ['build']);
+  return gulp.watch(path.src, gulp.series('build'));
 });
 
 //
 // default
 //
  
-gulp.task('default', ['build', 'webserver', 'watch']);
+gulp.task('default', gulp.parallel('build', 'webserver', 'watch'));
