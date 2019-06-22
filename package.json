@@ -6,8 +6,8 @@
   },
   "private": false,
   "devDependencies": {
-    "del": "3.0.0",
-    "gulp": "4.0.0",
+    "del": "4.1.1",
+    "gulp": "4.0.2",
     "gulp-connect": "5.7.0",
     "gulp-rigger": "0.5.8",
     "gulp-util": "3.0.8",

@@ -1,5 +1,5 @@
 /*
- ! Submit Form v2.2 | (c) 2013 - 2018 Ershov Alexey
+ ! Submit Form v2.3 | (c) 2013 - 2019 Ershov Alexey
 */
 
 (function($) {
@@ -247,10 +247,10 @@
           method: $this.attr('method') || 'POST',
           ajax: true,
           responseElement: $(this),
-          onBeforeSend: function (obj) {
+          onBeforeSend: function () {
             $this.addClass(item.state.processing);
           },
-          onSuccess: function (response, status, obj) {
+          onSuccess: function (response) {
             $this.removeClass(item.state.processing);
             $this.addClass(item.state.success);
             
@@ -263,12 +263,13 @@
             $this.removeClass(item.state.processing);
             $this.addClass(item.state.error);
             
-            var s = item.options.error ? item.options.error(status, error) : undefined;
-            if (s) {
+            var s = item.options.error && item.options.error(error, obj.responseText);
+            if (s || s === undefined) {
               item.options.responseElement.html(error);
             }
           },
           success: function(response) {},
+          error: function(error, response) {},
           prepare: function(data) { return data; },
           beforeSend: function(data) { return true; }
         };          
