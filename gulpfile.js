@@ -9,8 +9,6 @@ var del = require('del');
 
 var connect = require('gulp-connect');
 
-var rigger = require('gulp-rigger');
-
 var minify = require('gulp-minify');
 
 var path = {
@@ -71,4 +69,4 @@ gulp.task('watch', function() {
 // default
 //
  
-gulp.task('default', gulp.parallel('build', 'webserver', 'watch'));
+gulp.task('default', gulp.series('clean', gulp.parallel('build', 'webserver', 'watch')));

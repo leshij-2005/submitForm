@@ -1,5 +1,5 @@
 /*
- ! Submit Form v2.3 | (c) 2013 - 2019 Ershov Alexey
+ ! Submit Form v2.4 | (c) 2013 - 2019 Ershov Alexey
 */
 
 (function($) {
@@ -18,10 +18,6 @@
   var validators = {
     required: function(item) {
       var value = item.type === 'radio' || item.type === 'checkbox' ? item.checked : $(item).val().trim();
-      
-      if (!value) {
-        $(item).addClass('invalid');
-      }
 
       return !!value;
     },
@@ -30,7 +26,6 @@
       var valid = true;
 
       if (!(/^[0-9()\-+\s]+$/).test(value) || value.length < 6) {
-        $(item).addClass('invalid');
         valid = false;
       }
 
@@ -41,7 +36,6 @@
       var valid = true;
 
       if (value && !(/^[а-яА-Яa-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[а-яА-Яa-zA-Z0-9-]+(?:\.[а-яА-Яa-zA-Z0-9-]+)*$/i).test(value)) {
-        $(item).addClass('invalid');
         valid = false;
       }
 
@@ -56,10 +50,6 @@
         var date = new Date(dateArr[2], dateArr[1] - 1, dateArr[0], 0, 0, 0, 0);
         
         valid = !isNaN(date.getTime()) && (parseInt(dateArr[1]) === (date.getMonth() + 1));
-
-        if (!valid) {
-          $(item).addClass('invalid');
-        }
       }
 
       return valid;
@@ -71,7 +61,6 @@
 
       if (value.length < minlength) {
         valid = false;
-        $(item).addClass('invalid');
       }
 
       return valid;
@@ -81,7 +70,6 @@
       var valid = true;
 
       if (value && !(/^\d+$/).test(value)) {
-        $(item).addClass('invalid');
         valid = false;
       }
 
@@ -92,7 +80,6 @@
       var valid = true;
 
       if (value && (/[\d/\|:@%&*()^~`"'+$#№]/).test(value)) {
-        $(item).addClass('invalid');
         valid = false;
       }
 
@@ -116,30 +103,28 @@
 
   function validateField(field) {
     var validAttr = $(field).attr('data-validate');
-    $(field).removeClass('invalid');
-    $(field).removeClass('valid');
+    $(field).removeClass('invalid valid');
       
     if (validAttr) {
       var valids = validAttr.split(', ');
       for (var j = 0; validator = valids[j]; j++) {
         var f = validators[validator];
+        var valid = f(field);
 
-        $(field).removeClass('invalid');
-        valid = f(field);
-        if(!valid) {
+        $(field)
+          .removeClass('invalid')
+          .removeClass(function (index, css) {
+            return (css.match (/\binvalid_\S+/g) || []).join(' ');
+          });
+
+        if (!valid) {
           $(field).focus();
-          $(this).addClass('invalid-' + validator);
-          
+          $(field)
+            .addClass('invalid')
+            .addClass('invalid_' + validator);
+  
           return false;
         }
-      }
-
-      if (!valid) {
-        if (this.options.invalidHandler !== undefined) {
-          this.options.invalidHandler(item);
-        }
-
-        return false;
       }
     }
 
@@ -149,22 +134,30 @@
   }
 
   function validate() {
-    var that = this;
-
     fields = [];
     this.fields = searchField(this);
-    
-    $.each(validators, function (key, item) {
-      $(that).removeClass('invalid-' + key);
-    });
+
+    $(this).removeClass('invalid');
 
     var valid = false;
+    var item = null;
+
     for (var i = 0; i < fields.length ; i++) {
-      var item = this.fields[i];
-      valid = validateField.call(that, item);
+      item = this.fields[i];
+      valid = validateField(item);
 
       if (!valid) {
         break;
+      }
+    }
+    
+    if (!valid) {
+      $(this).addClass('invalid');
+
+      if (this.options.invalidHandler !== undefined) {
+        this.options.invalidHandler(item);
+        
+        return false;
       }
     }
 
@@ -183,7 +176,7 @@
         var value;
         
         if ((item.type === 'radio' || item.type === 'checkbox') && item.checked) {
-            value = $(item).val();
+          value = $(item).val();
         }
         
         if (/text|hidden|password|tel/.test(item.type) || item.nodeName === 'SELECT' || item.nodeName === 'TEXTAREA') {

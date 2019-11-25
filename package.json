@@ -1,15 +1,21 @@
 {
   "name": "submit_form",
+  "author": {
+    "name": "Alexey Ershov",
+    "email": "leshi-2005@yandex.ru"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/leshij-2005/submitForm.git"
   },
+  "scripts": {
+    "start": "node node_modules/gulp/bin/gulp.js --gulpfile ./gulpfile.js"
+  },
   "private": false,
   "devDependencies": {
-    "del": "4.1.1",
+    "del": "5.1.0",
     "gulp": "4.0.2",
     "gulp-connect": "5.7.0",
-    "gulp-rigger": "0.5.8",
     "gulp-util": "3.0.8",
     "gulp-watch": "5.0.1",
     "gulp-minify": "3.1.0"
