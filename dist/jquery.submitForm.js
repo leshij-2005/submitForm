@@ -1,5 +1,5 @@
 /*
- ! Submit Form v2.4 | (c) 2013 - 2019 Ershov Alexey
+ * Submit Form v2.4 | (c) 2013 - 2020 Ershov Alexey
 */
 
 (function($) {
@@ -212,7 +212,7 @@
           };
         }
 
-        if (this.options.beforeSend(data)) {
+        if (this.options.beforeSend(data, this.options.ajaxObject)) {
           $.ajax(this.options.ajaxObject);
         }
 
@@ -264,7 +264,7 @@
           success: function(response) {},
           error: function(error, response) {},
           prepare: function(data) { return data; },
-          beforeSend: function(data) { return true; }
+          beforeSend: function(data, ajaxObject) { return true; }
         };          
 
         var options = $.extend({}, defaults, params);
